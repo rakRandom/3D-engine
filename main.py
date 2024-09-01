@@ -1,7 +1,7 @@
 import pygame as pg
 from sys import exit as pyexit
 
-RES = WIDTH, HEIGHT = 720, 480
+RESOLUTION = WIDTH, HEIGHT = 720, 480
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 POS_ZERO = pg.math.Vector2(0, 0)
@@ -13,12 +13,7 @@ class Triangle:
         self.height = height
         self.width = width
         self.depth = depth
-        self.points: list[pg.math.Vector3] = []
-        self.get_points()
-        self.lines: list[tuple[pg.math.Vector3]] = []
-        self.get_lines()
 
-    def get_points(self):
         self.points = [
             self.central_pos,
             pg.math.Vector3(self.central_pos.x - self.width/2, self.central_pos.y - self.height, self.central_pos.z - self.depth/2),
@@ -27,7 +22,6 @@ class Triangle:
             pg.math.Vector3(self.central_pos.x + self.width/2, self.central_pos.y - self.height, self.central_pos.z - self.depth/2)
         ]
 
-    def get_lines(self):
         self.lines = [(self.points[0], self.points[1]),
                       (self.points[0], self.points[2]),
                       (self.points[0], self.points[3]),
@@ -42,18 +36,18 @@ class Main:
     def __init__(self):
         pg.init()
         pg.display.set_caption("Engine 3D")
-        self.screen = pg.display.set_mode(RES)
+        self.screen = pg.display.set_mode(RESOLUTION)
         self.clock = pg.time.Clock()
 
         self.speed = 10
         self.axis = pg.math.Vector2(90, 90)
-        self.fov = HEIGHT
+        self.focal_len = HEIGHT
         self.camera_pos = pg.math.Vector3(0.1, 0, 0)
 
         self.shapes = list()
-        self.shapes.append(Triangle(pg.math.Vector3(-250, 200, 150), 200, 200, 200))
-        self.shapes.append(Triangle(pg.math.Vector3(0, 200, 150), 200, 200, 200))
-        self.shapes.append(Triangle(pg.math.Vector3(250, 200, 150), 200, 200, 200))
+        self.shapes.append(Triangle(pg.math.Vector3(-250, 300, 250), 200, 200, 200))
+        self.shapes.append(Triangle(pg.math.Vector3(0, 200, 250), 200, 200, 200))
+        self.shapes.append(Triangle(pg.math.Vector3(250, 100, 250), 200, 200, 200))
 
     def run(self):
         while True:
@@ -99,28 +93,23 @@ class Main:
         # for shape in self.shapes:
         #     for line in shape.lines:
         #         if line[0] != () and line[1] != ():
-        #             x1 = (WIDTH / 2) - ((-2 * line[0].x + WIDTH) * self.fov) / (2 * (self.fov + line[0].z))
-        #             y1 = (HEIGHT / 2) - ((-2 * line[0].y + HEIGHT) * self.fov) / (2 * (self.fov + line[0].z))
-        #             x2 = (WIDTH / 2) - ((-2 * line[1].x + WIDTH) * self.fov) / (2 * (self.fov + line[1].z))
-        #             y2 = (HEIGHT / 2) - ((-2 * line[1].y + HEIGHT) * self.fov) / (2 * (self.fov + line[1].z))
+        #             x1 = (WIDTH / 2) - ((-2 * line[0].x + WIDTH) * self.focal_len) / (2 * (self.focal_len + line[0].z))
+        #             y1 = (HEIGHT / 2) - ((-2 * line[0].y + HEIGHT) * self.focal_len) / (2 * (self.focal_len + line[0].z))
+        #             x2 = (WIDTH / 2) - ((-2 * line[1].x + WIDTH) * self.focal_len) / (2 * (self.focal_len + line[1].z))
+        #             y2 = (HEIGHT / 2) - ((-2 * line[1].y + HEIGHT) * self.focal_len) / (2 * (self.focal_len + line[1].z))
         #             pg.draw.line(self.screen, WHITE, (x1, y1), (x2, y2))
 
         for shape in self.shapes:
-            relative_central_pos = shape.central_pos - self.camera_pos
-            relative_y_ang = POS_ZERO.angle_to(relative_central_pos.xz.normalize()) - self.axis.y / 2
-
-            # print(relative_y_ang)
-
             for line in shape.lines:
                 vec1 = line[0] - self.camera_pos
                 vec2 = line[1] - self.camera_pos
 
                 if vec1 and vec2:
-                    # x1 = (WIDTH / 2) - ((-2 * vec1.x + WIDTH) * self.fov) / (2 * (self.fov + vec1.z))
-                    # x2 = (WIDTH / 2) - ((-2 * vec2.x + WIDTH) * self.fov) / (2 * (self.fov + vec2.z))
+                    # x1 = (WIDTH / 2) - ((-2 * vec1.x + WIDTH) * self.focal_len) / (2 * (self.focal_len + vec1.z))
+                    # x2 = (WIDTH / 2) - ((-2 * vec2.x + WIDTH) * self.focal_len) / (2 * (self.focal_len + vec2.z))
                     #
-                    # y1 = (HEIGHT / 2) - ((-2 * vec1.y + HEIGHT) * self.fov) / (2 * (self.fov + vec1.z))
-                    # y2 = (HEIGHT / 2) - ((-2 * vec2.y + HEIGHT) * self.fov) / (2 * (self.fov + vec2.z))
+                    # y1 = (HEIGHT / 2) - ((-2 * vec1.y + HEIGHT) * self.focal_len) / (2 * (self.focal_len + vec1.z))
+                    # y2 = (HEIGHT / 2) - ((-2 * vec2.y + HEIGHT) * self.focal_len) / (2 * (self.focal_len + vec2.z))
 
                     x1 = (WIDTH * ((POS_ZERO.angle_to(vec1.xz.normalize()) - self.axis.y / 2) / 90))
                     x2 = (WIDTH * ((POS_ZERO.angle_to(vec2.xz.normalize()) - self.axis.y / 2) / 90))
